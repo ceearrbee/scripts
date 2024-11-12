@@ -18,16 +18,16 @@ class PhotoGallery extends HTMLElement {
       .gallery img {
         width: 100%;
         display: block;
-        margin: 0; /* No margin between images */
+        margin: 0;
         border-radius: 5px;
         cursor: pointer;
         transition: transform 0.2s;
-        opacity: 0; /* Start with opacity 0 for lazy loading effect */
-        transition: opacity 0.3s ease; /* Fade-in effect */
+        opacity: 0;
+        transition: opacity 0.3s ease;
       }
 
       .gallery img.lazy-loaded {
-        opacity: 1; /* Set to visible once loaded */
+        opacity: 1;
       }
 
       /* Responsive adjustments for smaller screens */
@@ -127,6 +127,7 @@ class PhotoGallery extends HTMLElement {
     closeButton.classList.add("control-button");
     closeButton.setAttribute("aria-label", "Close lightbox");
 
+
     controls.append(prevButton, closeButton, nextButton);
     lightbox.appendChild(controls);
 
@@ -140,7 +141,7 @@ class PhotoGallery extends HTMLElement {
 
     images.forEach((src, index) => {
       const img = document.createElement("img");
-      img.setAttribute("data-src", `images/thumbnails/${src}`); // Use data-src for lazy loading
+      img.setAttribute("data-src", `images/thumbnails/${src}`);
       img.setAttribute("data-full-src", `images/${src}`);
       img.setAttribute("data-index", index);
       img.alt = `Image ${index + 1}`;
@@ -160,7 +161,7 @@ class PhotoGallery extends HTMLElement {
       img.src = img.getAttribute("data-src");
       img.onload = () => {
         img.classList.add("lazy-loaded");
-        img.removeAttribute("data-src"); // Clean up after loading
+        img.removeAttribute("data-src");
       };
     };
 
@@ -169,28 +170,30 @@ class PhotoGallery extends HTMLElement {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             lazyLoad(entry.target);
-            observer.unobserve(entry.target); // Stop observing once loaded
+            observer.unobserve(entry.target);
           }
         });
       },
       {
-        rootMargin: "50px", // Load images slightly before they enter the viewport
+        rootMargin: "50px",
         threshold: 0.1,
       }
     );
 
-    // Observe each image for lazy loading
     gallery.querySelectorAll("img").forEach((img) => observer.observe(img));
 
-    // Lightbox functionality
     let currentIndex = 0;
 
     this.openLightbox = (index) => {
       currentIndex = index;
-      lightboxImage.src = gallery.children[currentIndex].getAttribute("data-full-src");
+      lightboxImage.src = '';
       lightbox.style.display = "flex";
       lightbox.setAttribute("aria-hidden", "false");
       closeButton.focus();
+
+      setTimeout(() => {
+        lightboxImage.src = gallery.children[currentIndex].getAttribute("data-full-src");
+      }, 10);
     };
 
     this.closeLightbox = () => {
@@ -200,24 +203,29 @@ class PhotoGallery extends HTMLElement {
 
     this.showNextImage = () => {
       currentIndex = (currentIndex + 1) % images.length;
+      preloadImage(currentIndex);
       lightboxImage.src = gallery.children[currentIndex].getAttribute("data-full-src");
     };
 
     this.showPreviousImage = () => {
       currentIndex = (currentIndex - 1 + images.length) % images.length;
+      preloadImage(currentIndex);
       lightboxImage.src = gallery.children[currentIndex].getAttribute("data-full-src");
+    };
+
+    const preloadImage = (index) => {
+      const img = new Image();
+      img.src = gallery.children[index].getAttribute("data-full-src");
     };
 
     closeButton.addEventListener("click", this.closeLightbox);
     nextButton.addEventListener("click", this.showNextImage);
     prevButton.addEventListener("click", this.showPreviousImage);
 
-    // Close lightbox when clicking outside the image
     lightbox.addEventListener("click", (e) => {
       if (e.target === lightbox) this.closeLightbox();
     });
 
-    // Keyboard accessibility for lightbox navigation
     lightbox.addEventListener("keydown", (e) => {
       if (e.key === "Escape") this.closeLightbox();
       if (e.key === "ArrowRight") this.showNextImage();
