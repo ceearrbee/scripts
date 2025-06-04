@@ -18,7 +18,7 @@ A simple web gallery using html, css, js, bash and ImageMagick.
 # Notes
 
 * Requires ImageMagick to be installed.
-* Filenames cannot not contain spaces.
+* Filenames cannot contain spaces.
 * Supports jpg and png only.
 * Does not provide a fallback if JS is not available. 
 * Tested on AlmaLinux 8 with Caddy.
