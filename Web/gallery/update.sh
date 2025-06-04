@@ -72,7 +72,7 @@ done
 
 # Build the image list for the HTML file
 echo "Building image list for HTML file..." | tee -a "$LOG_FILE"
-updated_images=$(echo "$current_images" | awk '{for(i=1;i<=NF;i++) printf "\""$i"\","}')
+updated_images=$(echo "$current_images" | awk '{for(i=1;i<=NF;i++) printf "\"%s\",", $i}')
 updated_images=${updated_images%,} # Remove trailing comma
 echo "Updated image list for HTML: $updated_images" | tee -a "$LOG_FILE"
 
