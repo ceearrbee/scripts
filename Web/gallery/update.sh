@@ -38,8 +38,8 @@ for image in "$SOURCE_DIR"/*.{jpg,png}; do
     current_images="$current_images $filename"
     echo "Detected image file: $image" | tee -a "$LOG_FILE"
 
-    # Check if the image is new by checking if it exists in the RSS feed
-    if ! grep -q "$filename" "$RSS_FILE"; then
+    # Check if the image is new. Skip the grep when the RSS file is missing
+    if [ ! -f "$RSS_FILE" ] || ! grep -q "$filename" "$RSS_FILE"; then
       new_images="$new_images $filename"
       echo "New image detected: $filename" | tee -a "$LOG_FILE"
     fi
